@@ -1,13 +1,33 @@
+// ════════════════════════════════════════════════════════════════════════════
+// MISSION CONTROL THEME — interview.scss
+// Matches home.scss: deep navy base, signal-orange accent, cyan secondary,
+// monospace technical labels, severity palette for skill gaps.
+// ════════════════════════════════════════════════════════════════════════════
+
+@use "sass:color";
+
+// ── Fonts ───────────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 // ── Shared Variables (mirrors home.scss theme) ────────────────────────────────
-$bg-page: #0d1117;
-$bg-card: #161b22;
-$bg-panel: #1c2230;
-$bg-input: #1e2535;
-$border-color: #2a3348;
-$text-primary: #e6edf3;
-$text-muted: #7d8590;
-$accent: #ff2d78;
-$font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$bg-page:        #0a0e1a;
+$bg-card:        #12182b;
+$bg-panel:       #161d33;
+$bg-input:       #0e1426;
+$border-color:   #232c47;
+$border-glow:    #3a4570;
+$text-primary:   #eef2f8;
+$text-muted:     #6b7894;
+$accent:         #ff6b35;
+$accent-cyan:    #4ecdc4;
+
+$font-display:   'Space Grotesk', system-ui, sans-serif;
+$font-mono:      'JetBrains Mono', 'SF Mono', monospace;
+$font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+$radius-sm: 0.4rem;
+$radius-md: 0.7rem;
+$radius-lg: 1.1rem;
 
 // severity palette
 $severity-high: #ff4d4d;
@@ -18,7 +38,33 @@ $severity-low: #3fb950;
     display: none;
 }
 
-// ── Page Shell ────────────────────────────────────────────────────────────────
+// ── Keyframes ───────────────────────────────────────────────────────────────
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes border-sweep {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+@keyframes ring-fill {
+    from { stroke-dashoffset: var(--ring-circumference); }
+    to   { stroke-dashoffset: var(--ring-offset); }
+}
+
+@keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba($accent, 0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba($accent, 0); }
+}
+
+// ── Page Shell ──────────────────────────────────────────────────────────────
 .interview-page {
     width: 100%;
     min-height: 100vh;
@@ -29,6 +75,27 @@ $severity-low: #3fb950;
     align-items: stretch;
     padding: 1.5rem;
     box-sizing: border-box;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: fixed;
+        top: -10%;
+        left: 50%;
+        width: 60vw;
+        height: 60vw;
+        max-width: 800px;
+        max-height: 800px;
+        background: radial-gradient(circle, rgba($accent, 0.08) 0%, transparent 70%);
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    > * {
+        position: relative;
+        z-index: 1;
+    }
 }
 
 // ── 3-Column Layout ───────────────────────────────────────────────────────────
@@ -39,13 +106,30 @@ $severity-low: #3fb950;
     margin: 0 auto;
     background-color: $bg-card;
     border: 1px solid $border-color;
-    border-radius: 1rem;
+    border-radius: $radius-lg;
     justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    animation: fade-up 0.5s ease-out;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg,
+            transparent, $accent, $accent-cyan, transparent);
+        background-size: 200% 100%;
+        animation: border-sweep 6s linear infinite;
+        z-index: 2;
+    }
 }
 
 .interview-divider {
     width: 1px;
-    background-color: $border-color;
+    background: linear-gradient(to bottom, transparent, $border-color 15%, $border-color 85%, transparent);
     flex-shrink: 0;
 }
 
@@ -59,17 +143,20 @@ $severity-low: #3fb950;
     justify-content: space-between;
     gap: 0.25rem;
 
-
-
-
     &__label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
+        font-family: $font-mono;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.12em;
         color: $text-muted;
         padding: 0 0.75rem;
         margin-bottom: 0.5rem;
+
+        &::before {
+            content: '// ';
+            color: $border-glow;
+        }
     }
 
     &__item {
@@ -80,22 +167,37 @@ $severity-low: #3fb950;
         padding: 0.65rem 0.75rem;
         background: none;
         border: none;
-        border-radius: 0.5rem;
+        border-radius: $radius-sm;
         color: $text-muted;
         font-family: $font-stack;
         font-size: 0.875rem;
         cursor: pointer;
         text-align: left;
-        transition: background-color 0.15s, color 0.15s;
+        transition: background-color 0.15s, color 0.15s, transform 0.15s;
+        position: relative;
 
         &:hover {
             background-color: $bg-panel;
             color: $text-primary;
+            transform: translateX(2px);
         }
 
         &--active {
             background-color: rgba($accent, 0.1);
             color: $accent;
+            font-weight: 600;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 3px;
+                height: 60%;
+                background-color: $accent;
+                border-radius: 0 2px 2px 0;
+            }
 
             .interview-nav__icon svg {
                 stroke: $accent;
@@ -120,15 +222,9 @@ $severity-low: #3fb950;
     padding-bottom: 5rem;
     align-items: flex-start;
 
-
-
-
-
-
-
-
     section {
         min-height: 100%;
+        animation: fade-in 0.4s ease-out;
     }
 }
 
@@ -141,19 +237,22 @@ $severity-low: #3fb950;
     border-bottom: 1px solid $border-color;
 
     h2 {
-        font-size: 1.1rem;
+        font-family: $font-display;
+        font-size: 1.15rem;
         font-weight: 700;
         color: $text-primary;
         margin: 0;
+        letter-spacing: -0.005em;
     }
 
     &__count {
-        font-size: 0.8rem;
-        color: $text-muted;
-        background-color: $bg-panel;
-        padding: 0.15rem 0.6rem;
+        font-size: 0.75rem;
+        font-family: $font-mono;
+        color: $accent-cyan;
+        background-color: rgba($accent-cyan, 0.08);
+        padding: 0.2rem 0.65rem;
         border-radius: 2rem;
-        border: 1px solid $border-color;
+        border: 1px solid rgba($accent-cyan, 0.2);
     }
 }
 
@@ -167,12 +266,13 @@ $severity-low: #3fb950;
 .q-card {
     background-color: $bg-panel;
     border: 1px solid $border-color;
-    border-radius: 0.6rem;
+    border-radius: $radius-md;
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 
     &:hover {
-        border-color: lighten($border-color, 8%);
+        border-color: $border-glow;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
     &__header {
@@ -186,12 +286,13 @@ $severity-low: #3fb950;
 
     &__index {
         flex-shrink: 0;
+        font-family: $font-mono;
         font-size: 0.7rem;
         font-weight: 700;
         color: $accent;
         background-color: rgba($accent, 0.1);
         border: 1px solid rgba($accent, 0.2);
-        border-radius: 0.3rem;
+        border-radius: $radius-sm;
         padding: 0.15rem 0.4rem;
         margin-top: 2px;
     }
@@ -208,7 +309,7 @@ $severity-low: #3fb950;
     &__chevron {
         flex-shrink: 0;
         color: $text-muted;
-        transition: transform 0.2s;
+        transition: transform 0.25s ease;
         margin-top: 2px;
 
         &--open {
@@ -224,6 +325,7 @@ $severity-low: #3fb950;
         gap: 0.75rem;
         border-top: 1px solid $border-color;
         padding-top: 0.75rem;
+        animation: fade-in 0.25s ease-out;
     }
 
     &__section {
@@ -234,18 +336,19 @@ $severity-low: #3fb950;
         p {
             margin: 0;
             font-size: 0.835rem;
-            color: lighten($text-muted, 15%);
+            color: color.adjust($text-muted, $lightness: 15%);
             line-height: 1.6;
         }
     }
 
     &__tag {
-        font-size: 0.68rem;
+        font-family: $font-mono;
+        font-size: 0.65rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         padding: 0.15rem 0.5rem;
-        border-radius: 0.25rem;
+        border-radius: $radius-sm;
         width: fit-content;
 
         &--intention {
@@ -255,9 +358,9 @@ $severity-low: #3fb950;
         }
 
         &--answer {
-            color: #3fb950;
-            background-color: rgba(#3fb950, 0.1);
-            border: 1px solid rgba(#3fb950, 0.2);
+            color: $accent-cyan;
+            background-color: rgba($accent-cyan, 0.1);
+            border: 1px solid rgba($accent-cyan, 0.2);
         }
     }
 }
@@ -269,7 +372,6 @@ $severity-low: #3fb950;
     gap: 0;
     position: relative;
 
-    // vertical timeline line
     &::before {
         content: '';
         position: absolute;
@@ -277,7 +379,7 @@ $severity-low: #3fb950;
         top: 0;
         bottom: 0;
         width: 2px;
-        background: linear-gradient(to bottom, $accent, rgba($accent, 0.1));
+        background: linear-gradient(to bottom, $accent, $accent-cyan, rgba($accent-cyan, 0.05));
         border-radius: 1px;
     }
 }
@@ -289,7 +391,6 @@ $severity-low: #3fb950;
     padding: 0.75rem 0 0.75rem 3.5rem;
     position: relative;
 
-    // dot on timeline
     &::before {
         content: '';
         position: absolute;
@@ -300,6 +401,12 @@ $severity-low: #3fb950;
         border-radius: 50%;
         background-color: $bg-card;
         border: 2px solid $accent;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    &:hover::before {
+        border-color: $accent-cyan;
+        transform: scale(1.15);
     }
 
     &__header {
@@ -309,6 +416,7 @@ $severity-low: #3fb950;
     }
 
     &__badge {
+        font-family: $font-mono;
         font-size: 0.7rem;
         font-weight: 700;
         color: $accent;
@@ -320,7 +428,8 @@ $severity-low: #3fb950;
 
     &__focus {
         margin: 0;
-        font-size: 0.95rem;
+        font-family: $font-display;
+        font-size: 0.98rem;
         font-weight: 600;
         color: $text-primary;
     }
@@ -338,7 +447,7 @@ $severity-low: #3fb950;
             align-items: flex-start;
             gap: 0.5rem;
             font-size: 0.845rem;
-            color: lighten($text-muted, 12%);
+            color: color.adjust($text-muted, $lightness: 12%);
             line-height: 1.5;
         }
     }
@@ -348,7 +457,7 @@ $severity-low: #3fb950;
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background-color: $text-muted;
+        background-color: $accent-cyan;
         margin-top: 8px;
     }
 }
@@ -365,7 +474,7 @@ $severity-low: #3fb950;
 
 .sidebar-divider {
     height: 1px;
-    background-color: $border-color;
+    background: linear-gradient(to right, transparent, $border-color 15%, $border-color 85%, transparent);
 }
 
 // Match Score
@@ -376,47 +485,55 @@ $severity-low: #3fb950;
     gap: 0.6rem;
 
     &__label {
-        font-size: 0.75rem;
+        font-family: $font-mono;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         color: $text-muted;
         margin: 0;
         align-self: flex-start;
     }
 
     &__ring {
-        width: 90px;
-        height: 90px;
+        width: 92px;
+        height: 92px;
         border-radius: 50%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         border: 4px solid;
+        position: relative;
+        transition: box-shadow 0.3s;
 
         &.score--high {
             border-color: $severity-low;
+            box-shadow: 0 0 18px rgba($severity-low, 0.25);
         }
 
         &.score--mid {
             border-color: $severity-medium;
+            box-shadow: 0 0 18px rgba($severity-medium, 0.2);
         }
 
         &.score--low {
             border-color: $severity-high;
+            box-shadow: 0 0 18px rgba($severity-high, 0.2);
         }
     }
 
     &__value {
-        font-size: 1.6rem;
+        font-family: $font-display;
+        font-size: 1.65rem;
         font-weight: 800;
         color: $text-primary;
         line-height: 1;
     }
 
     &__pct {
-        font-size: 0.75rem;
+        font-family: $font-mono;
+        font-size: 0.7rem;
         color: $text-muted;
         margin-top: -2px;
     }
@@ -436,10 +553,11 @@ $severity-low: #3fb950;
     gap: 0.75rem;
 
     &__label {
-        font-size: 0.75rem;
+        font-family: $font-mono;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         color: $text-muted;
         margin: 0;
     }
@@ -455,25 +573,79 @@ $severity-low: #3fb950;
     font-size: 0.775rem;
     font-weight: 500;
     padding: 0.3rem 0.7rem;
-    border-radius: 0.4rem;
+    border-radius: $radius-sm;
     border: 1px solid;
     cursor: default;
+    transition: transform 0.15s;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 
     &--high {
         color: $severity-high;
         background-color: rgba($severity-high, 0.1);
         border-color: rgba($severity-high, 0.25);
+
+        &::before {
+            content: '● ';
+        }
     }
 
     &--medium {
         color: $severity-medium;
         background-color: rgba($severity-medium, 0.1);
         border-color: rgba($severity-medium, 0.25);
+
+        &::before {
+            content: '● ';
+        }
     }
 
     &--low {
         color: $severity-low;
         background-color: rgba($severity-low, 0.1);
         border-color: rgba($severity-low, 0.25);
+
+        &::before {
+            content: '● ';
+        }
+    }
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+    .interview-layout {
+        flex-direction: column;
+    }
+
+    .interview-nav {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .interview-divider {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(to right, transparent, $border-color 15%, $border-color 85%, transparent);
+    }
+
+    .interview-sidebar {
+        width: 100%;
+    }
+
+    .interview-content {
+        max-height: none;
+    }
+}
+
+// ── Reduced Motion ──────────────────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
