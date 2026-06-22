@@ -3,11 +3,6 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const tokenBlacklistModel = require("../models/blacklist.model")
 
-/**
- * @name registerUserController
- * @description register a new user, expects username, email and password in the request body
- * @access Public
- */
 async function registerUserController(req, res) {
 
     const { username, email, password } = req.body
@@ -44,24 +39,17 @@ async function registerUserController(req, res) {
 
     res.cookie("token", token)
 
-
     res.status(201).json({
         message: "User registered successfully",
+        token,                          // ← added
         user: {
             id: user._id,
             username: user.username,
             email: user.email
         }
     })
-
 }
 
-
-/**
- * @name loginUserController
- * @description login a user, expects email and password in the request body
- * @access Public
- */
 async function loginUserController(req, res) {
 
     const { email, password } = req.body
@@ -89,8 +77,10 @@ async function loginUserController(req, res) {
     )
 
     res.cookie("token", token)
+
     res.status(200).json({
         message: "User loggedIn successfully.",
+        token,                          // ← added
         user: {
             id: user._id,
             username: user.username,
@@ -99,14 +89,8 @@ async function loginUserController(req, res) {
     })
 }
 
-
-/**
- * @name logoutUserController
- * @description clear token from user cookie and add the token in blacklist
- * @access public
- */
 async function logoutUserController(req, res) {
-    const token = req.cookies.token
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1]
 
     if (token) {
         await tokenBlacklistModel.create({ token })
@@ -119,16 +103,9 @@ async function logoutUserController(req, res) {
     })
 }
 
-/**
- * @name getMeController
- * @description get the current logged in user details.
- * @access private
- */
 async function getMeController(req, res) {
 
     const user = await userModel.findById(req.user.id)
-
-
 
     res.status(200).json({
         message: "User details fetched successfully",
@@ -138,10 +115,7 @@ async function getMeController(req, res) {
             email: user.email
         }
     })
-
 }
-
-
 
 module.exports = {
     registerUserController,
