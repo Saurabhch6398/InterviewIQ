@@ -29,16 +29,20 @@ const Home = () => {
         }
     }
 
-    if (loading) {
-        return (
-            <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
-            </main>
-        )
-    }
+    // Remove the conditional loading return so the component stays mounted and state is preserved
 
     return (
         <div className='home-page'>
+            {/* Loading Overlay */}
+            {loading && (
+                <div className='loading-overlay'>
+                    <div className='loading-overlay__content'>
+                        <div className='spinner'></div>
+                        <h1>Loading your interview plan...</h1>
+                        <p>Tailoring questions and preparing roadmap. This may take up to 30 seconds.</p>
+                    </div>
+                </div>
+            )}
 
             {/* Page Header */}
             <header className='page-header'>
@@ -60,12 +64,13 @@ const Home = () => {
                             <span className='badge badge--required'>Required</span>
                         </div>
                         <textarea
+                            value={jobDescription}
                             onChange={(e) => { setJobDescription(e.target.value) }}
                             className='panel__textarea'
                             placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
                             maxLength={5000}
                         />
-                        <div className='char-counter'>0 / 5000 chars</div>
+                        <div className='char-counter'>{jobDescription.length} / 5000 chars</div>
                     </div>
 
                     {/* Vertical Divider */}
@@ -90,9 +95,24 @@ const Home = () => {
                                 <span className='dropzone__icon'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                 </span>
-                                <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
+                                <p className='dropzone__title'>
+                                    {resumeInputRef.current?.files?.[0] 
+                                        ? resumeInputRef.current.files[0].name 
+                                        : 'Click to upload or drag & drop'}
+                                </p>
                                 <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
+                                <input 
+                                    ref={resumeInputRef} 
+                                    hidden 
+                                    type='file' 
+                                    id='resume' 
+                                    name='resume' 
+                                    accept='.pdf,.docx'
+                                    onChange={() => {
+                                        // Trigger a re-render so the selected filename is shown in the UI
+                                        setError("")
+                                    }}
+                                />
                             </label>
                         </div>
 
@@ -103,6 +123,7 @@ const Home = () => {
                         <div className='self-description'>
                             <label className='section-label' htmlFor='selfDescription'>Quick Self-Description</label>
                             <textarea
+                                value={selfDescription}
                                 onChange={(e) => { setSelfDescription(e.target.value) }}
                                 id='selfDescription'
                                 name='selfDescription'
