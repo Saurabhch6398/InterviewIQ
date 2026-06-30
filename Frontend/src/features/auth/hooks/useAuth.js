@@ -11,10 +11,15 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await login({ email, password })
-            localStorage.setItem("token", data.token)  // ← added
-            setUser(data.user)
+            if (data && data.token) {
+                localStorage.setItem("token", data.token)
+                setUser(data.user)
+                return { success: true }
+            }
+            return { success: false, error: "Invalid response from server" }
         } catch (err) {
-
+            const msg = err.response?.data?.message || "Invalid email or password"
+            return { success: false, error: msg }
         } finally {
             setLoading(false)
         }
@@ -24,10 +29,15 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await register({ username, email, password })
-            localStorage.setItem("token", data.token)  // ← added
-            setUser(data.user)
+            if (data && data.token) {
+                localStorage.setItem("token", data.token)
+                setUser(data.user)
+                return { success: true }
+            }
+            return { success: false, error: "Invalid response from server" }
         } catch (err) {
-
+            const msg = err.response?.data?.message || "Registration failed. Please try again."
+            return { success: false, error: msg }
         } finally {
             setLoading(false)
         }
@@ -36,11 +46,12 @@ export const useAuth = () => {
     const handleLogout = async () => {
         setLoading(true)
         try {
-            const data = await logout()
-            localStorage.removeItem("token")           // ← added
+            await logout()
+            localStorage.removeItem("token")
             setUser(null)
+            return { success: true }
         } catch (err) {
-
+            return { success: false, error: "Logout failed" }
         } finally {
             setLoading(false)
         }
