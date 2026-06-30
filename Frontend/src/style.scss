@@ -18,3 +18,28 @@ body,
 .highlight{
     color: #d20d3b;
 }
+
+.loading-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0e1a;
+    color: #eef2f8;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    text-align: center;
+    padding: 2rem;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        animation: pulse-glow 2s infinite ease-in-out;
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
+}
