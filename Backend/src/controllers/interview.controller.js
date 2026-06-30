@@ -11,9 +11,19 @@ const interviewReportModel = require("../models/interviewReport.model")
 async function generateInterViewReportController(req, res) {
 
     let resumeText = ""
-    if (req.file) {
-        const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
-        resumeText = resumeContent.text
+    if (req.file && req.file.size > 0) {
+        try {
+            if (req.file.mimetype === "application/pdf") {
+                const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
+                resumeText = resumeContent.text
+            } else {
+                // Fallback for docx or other text-based files
+                resumeText = req.file.buffer.toString("utf-8")
+            }
+        } catch (parseError) {
+            console.error("Failed to parse resume file:", parseError)
+            // Fallback to empty string so the request doesn't crash
+        }
     }
     const { selfDescription, jobDescription } = req.body
 
