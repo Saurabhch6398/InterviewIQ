@@ -456,6 +456,24 @@ $radius-lg: 1.1rem;
     }
 }
 
+.error-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    background-color: #2a1012;
+    border: 1px solid #4e1f22;
+    border-radius: $radius-md;
+
+    p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #ffb3b7;
+        line-height: 1.5;
+        font-weight: 500;
+    }
+}
+
 // ── Generate Button ─────────────────────────────────────────────────────────
 .generate-btn {
     display: flex;

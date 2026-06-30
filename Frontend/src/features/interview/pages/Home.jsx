@@ -8,14 +8,25 @@ const Home = () => {
     const { loading, generateReport,reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ error, setError ] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
     const handleGenerateReport = async () => {
+        setError("")
         const resumeFile = resumeInputRef.current.files[ 0 ]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-        navigate(`/interview/${data._id}`)
+        try {
+            const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+            if (data && data._id) {
+                navigate(`/interview/${data._id}`)
+            } else {
+                setError("Failed to generate interview plan. Please try again.")
+            }
+        } catch (err) {
+            const msg = err.response?.data?.message || "Rate limit exceeded (Too Many Requests). Please wait a minute before trying again."
+            setError(msg)
+        }
     }
 
     if (loading) {
@@ -99,6 +110,13 @@ const Home = () => {
                                 placeholder="Briefly describe your experience, key skills, and years of experience if you don't have a resume handy..."
                             />
                         </div>
+
+                        {/* Error Box */}
+                        {error && (
+                            <div className='error-box'>
+                                <p>{error}</p>
+                            </div>
+                        )}
 
                         {/* Info Box */}
                         <div className='info-box'>
