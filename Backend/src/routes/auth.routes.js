@@ -18,8 +18,6 @@ authRouter.post("/register", authController.registerUserController)
  * @access Public
  */
 authRouter.post("/login", authController.loginUserController)
-authRouter.post("/verify-otp", authController.verifyOtpController)
-authRouter.post("/resend-otp", authController.resendOtpController)
 
 
 /**
